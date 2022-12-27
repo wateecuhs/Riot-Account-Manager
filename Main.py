@@ -1,7 +1,10 @@
-import tkinter, customtkinter, win32gui, json, requests, time
 from win32gui import FindWindow, GetWindowRect
 from requests.auth import HTTPBasicAuth
 from LCU import LcuInfo
+from pystray import MenuItem as item
+from PIL import Image, ImageTk
+import tkinter,customtkinter, win32gui, json, requests, time, pystray
+import os
 
 
 customtkinter.set_appearance_mode("dark") 
@@ -178,11 +181,10 @@ def login(index):
         response_content = response.json()
         if response_content.get('error')=="":
             isloginavailable = "no"
-            app.withdraw()
+            hide_window()
             wait_for_client()
             time.sleep(2)
-            app = App()
-            app.mainloop()
+            app.deiconify()
         else:
             print(f"error : {response_content.get('error')}")
     else:
@@ -216,16 +218,35 @@ def wait_for_client():
                 if response_content.get('error')=="auth_failure":
                     isloginavailable = "yes"
                 else:
-                    print(f"error : {response_content.get('error')}")
-                    isloginavailable = "no"
+                        print(f"error : {response_content.get('error')}")
+                        isloginavailable = "no"
             else:
                 print(f"error {response.status_code}")
                 isloginavailable = "no"
 
-        
+def quit_window(icon, item):
+   icon.stop()
+   app.destroy()
+   quit()
+
+def show_window(icon, item):
+   icon.stop()
+   app.after(0,app.deiconify())
+
+def hide_window():
+   app.withdraw()
+   icon.run()
+
+def startup(icon,item):
+    """Not done yet"""
+    print('wip')
+
 
 if __name__ == "__main__":
     wait_for_client()
     time.sleep(1)
+    image=Image.open("favicon.ico")
+    menu=(item('Quit', quit_window),item('Launch on startup', startup))
+    icon=pystray.Icon("name", image, "My System Tray Icon", menu)
     app = App()
     app.mainloop()
