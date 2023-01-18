@@ -1,10 +1,4 @@
-import threading
-from pystray import Menu, MenuItem, Icon
-import os
-import sys
-import winshell
-from PIL import Image
-from main import show_app
+from modules import *
 
 image = Image.open("assets/favicon.ico")
 icon_started = False
@@ -15,9 +9,12 @@ def on_clicked1(item):
     if os.path.exists(path):
         return
     else:
-        with open(path, 'w') as file:
-            file.write(f"@echo off \n{python_path} {pathfile} \npause")
-
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(path)
+        print(os.path.abspath(sys.argv[0]))
+        shortcut.Targetpath = os.path.abspath(sys.argv[0])
+        shortcut.IconLocation = os.path.abspath(sys.argv[0])
+        shortcut.save()
     state1 = True
     state2 = False
 
@@ -32,26 +29,17 @@ def on_clicked2(item):
     state2 = True
 
 
-def show_window():
-    global window_text
-    show_app()
-    window_text = "Minimize app"
-
 
 def quit_window():
     global app, process
     icon.stop()
-    process.kill()
-    app.destroy()
     os._exit(1)
 
 
 def get_paths():
     global path, pathfile, python_path, state1, state2
     path = winshell.startup()
-    path = os.path.join(path, 'test.bat')
-    pathfile = f"\"{os.path.abspath(sys.argv[0])}\""
-    python_path = f"\"{sys.executable}\""
+    path = os.path.join(path, 'Riot Account Manager.lnk')
     if os.path.exists(path):
         state1 = True
         state2 = False
@@ -81,9 +69,7 @@ class IconThread(threading.Thread):
 def init_icon():
     global icon
     get_paths()
-    window_text = 'idk yet lole'
     icon = IconThread('Riot Account Manager', image, menu=Menu(
-        MenuItem((lambda text: window_text), show_window),
         MenuItem('Run on startup', Menu(
             MenuItem('Enable', on_clicked1, checked=lambda item1: state1),
             MenuItem('Disable', on_clicked2, checked=lambda item2: state2))),
