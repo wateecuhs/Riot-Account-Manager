@@ -25,7 +25,10 @@ class App(customtkinter.CTk):
         customtkinter.deactivate_automatic_dpi_awareness()
         super().__init__()
         self.grid_columnconfigure((0, 1), weight=0)
-        self.grid_rowconfigure((list(range(len(accounts)))), weight=0)
+        if len(accounts)>0:
+            self.grid_rowconfigure((list(range(len(accounts)))), weight=0)
+        else:
+            self.grid_rowconfigure((0, 1), weight=0)
         self.overrideredirect(False)
         self.title("Riot Login Selector")
         self.iconbitmap('assets/favicon.ico')
