@@ -1,22 +1,13 @@
-import customtkinter
-import json
 import logging
-import os
-import requests
-import sys
-import time
-import winshell
-from PIL import Image
-from pystray import Menu, MenuItem, Icon
-from win32gui import FindWindow, GetWindowRect
+import tkinter
+
+from modules import *
 
 from LCU import LcuInfo
 from iconStray import *
 
 image = Image.open("assets/favicon.ico")
 customtkinter.deactivate_automatic_dpi_awareness()
-
-logging.basicConfig(filename='logging.log', encoding='utf-8', level=logging.DEBUG)
 
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("blue")
@@ -42,7 +33,7 @@ class App(customtkinter.CTk):
         self.grid_rowconfigure((list(range(len(accounts)))), weight=0)
         self.overrideredirect(False)
         self.title("Riot Login Selector")
-        # self.resizable(False,False)
+        self.iconbitmap('assets/favicon.ico')
 
         window_handle = FindWindow(None, "Riot Client Main")
         window_rect = GetWindowRect(window_handle)
@@ -86,12 +77,12 @@ class App(customtkinter.CTk):
         window3.grid_rowconfigure((0, 1, 2, 3), weight=0)
         window3.title("Edit a profile")
 
-        entry_edit1 = customtkinter.CTkEntry(window3, placeholder_text="Type in the profile name you want to use").grid(
-            column=0, row=0, columnspan=2, padx=10, pady=10, sticky="nsew")
-        entry_edit2 = customtkinter.CTkEntry(window3, placeholder_text="Type in your account's username"
-                                             ).grid(column=0, row=1, columnspan=2, padx=10, pady=10, sticky="nsew")
-        entry_edit3 = customtkinter.CTkEntry(window3, placeholder_text="Type in your password", show="*"
-                                             ).grid(column=0, row=2, columnspan=2, padx=10, pady=10, sticky="nsew")
+        entry_edit1 = customtkinter.CTkEntry(window3, placeholder_text="Type in the profile name you want to use")
+        entry_edit1.grid(column=0, row=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        entry_edit2 = customtkinter.CTkEntry(window3, placeholder_text="Type in your account's username")
+        entry_edit2.grid(column=0, row=1, columnspan=2, padx=10, pady=10, sticky="nsew")
+        entry_edit3 = customtkinter.CTkEntry(window3, placeholder_text="Type in your password", show="*")
+        entry_edit3.grid(column=0, row=2, columnspan=2, padx=10, pady=10, sticky="nsew")
         customtkinter.CTkButton(window3, text="Add Account", command=edit_update
                                 ).grid(column=0, row=3, columnspan=2, padx=10, pady=10, sticky="ns")
 
@@ -121,18 +112,17 @@ class App(customtkinter.CTk):
         window2.grid_rowconfigure((0, 1, 2, 3), weight=0)
         window2.title("Add a profile")
 
-        entry1 = customtkinter.CTkEntry(window2, placeholder_text="Type in the profile name you want to use").grid(
-            column=0, row=0, columnspan=2, padx=10, pady=10, sticky="nsew")
-        entry2 = customtkinter.CTkEntry(window2, placeholder_text="Type in your account's username"
-                                        ).grid(column=0, row=1, columnspan=2, padx=10, pady=10, sticky="nsew")
-        entry3 = customtkinter.CTkEntry(window2, placeholder_text="Type in your password", show="*"
-                                        ).grid(column=0, row=2, columnspan=2, padx=10, pady=10, sticky="nsew")
+        entry1 = customtkinter.CTkEntry(window2, placeholder_text="Type in the profile name you want to use")
+        entry1.grid(column=0, row=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        entry2 = customtkinter.CTkEntry(window2, placeholder_text="Type in your account's username")
+        entry2.grid(column=0, row=1, columnspan=2, padx=10, pady=10, sticky="nsew")
+        entry3 = customtkinter.CTkEntry(window2, placeholder_text="Type in your password", show="*")
+        entry3.grid(column=0, row=2, columnspan=2, padx=10, pady=10, sticky="nsew")
         customtkinter.CTkButton(window2, text="Add Account", command=add_account
                                 ).grid(column=0, row=3, columnspan=2, padx=10, pady=10, sticky="ns")
 
 
 def add_account():
-    global profile_name
     profile_name = entry1.get()
     username = entry2.get()
     password = entry3.get()
@@ -152,7 +142,7 @@ def add_account():
 def refresh():
     global app
     app.withdraw()
-    app.destroy()
+    app.quit()
     time.sleep(1)
     app = App()
     app.protocol('WM_DELETE+_WINDOW', hide_window)
@@ -200,11 +190,8 @@ def option_menu_callback2(choice):
     account_to_edit = choice
 
 
-def show_app():
-    app.mainloop()
-
-
 def login(index):
+    global app
     lcu_info = LcuInfo()
 
     lcu_port = lcu_info.access_port
@@ -226,12 +213,14 @@ def login(index):
     if response.status_code == 201:
         response_content = response.json()
         if response_content.get('error') == "":
-            hide_window()
+            app.withdraw()
+            app.quit()
             print(1)
             wait_for_client()
             print(2)
-            time.sleep(2)
-            app.mainloop()
+            app = App()
+            app.protocol('WM_DELETE+_WINDOW', hide_window)
+            app.after(2000, app.mainloop())
         else:
             print(f"error : {response_content.get('error')}")
     else:
@@ -275,8 +264,6 @@ def wait_for_client():
 def hide_window():
     global app
     app.withdraw()
-    time.sleep(5)
-    app.deiconify
 
 
 def main():
@@ -292,6 +279,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-"""https://stackoverflow.com/questions/26168967/invalid-command-name-while-executing-after-script
-refresh issue"""
