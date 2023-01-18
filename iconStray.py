@@ -1,4 +1,19 @@
-from modules import *
+import customtkinter
+import json
+import logging
+import requests
+import time
+import winshell
+import os
+import sys
+import threading
+from PIL import Image
+from pystray import Menu, MenuItem, Icon
+from win32gui import FindWindow, GetWindowRect
+from pystray import Menu, MenuItem, Icon
+import winshell
+import win32com.client
+
 
 image = Image.open("assets/favicon.ico")
 icon_started = False
