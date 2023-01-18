@@ -1,8 +1,3 @@
-import logging
-import tkinter
-
-from modules import *
-
 from LCU import LcuInfo
 from iconStray import *
 
