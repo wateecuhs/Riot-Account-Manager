@@ -1,37 +1,39 @@
+import tkinter
+from tkinter import messagebox
+import customtkinter
+
 from LCU import LcuInfo
 from iconStray import *
 
-image = Image.open("assets/favicon.ico")
 customtkinter.deactivate_automatic_dpi_awareness()
-
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("blue")
+path = os.path.join(os.getenv('APPDATA')[:-8], 'Local', 'Riot Account Manager', 'accounts.json')
+stay_logged_in = True
 
 
 class App(customtkinter.CTk):
-
     def __init__(self):
-        global button_dict
+        global button_dict, window_rect, window_rect_1, window_rect_2
 
-        path = os.path.join(os.path.dirname(sys.argv[0]), 'accounts.json')
         if os.path.exists(path):
-            with open("accounts.json", "r") as account_file:
+            with open(path, "r") as account_file:
                 accounts = json.load(account_file)
         else:
-            with open("accounts.json", "w") as create_account_file:
+            with open(path, "w") as create_account_file:
                 accounts = []
                 json.dump(accounts, create_account_file)
 
         customtkinter.deactivate_automatic_dpi_awareness()
         super().__init__()
         self.grid_columnconfigure((0, 1), weight=0)
-        if len(accounts)>0:
+        if len(accounts) > 0:
             self.grid_rowconfigure((list(range(len(accounts)))), weight=0)
         else:
             self.grid_rowconfigure((0, 1), weight=0)
         self.overrideredirect(False)
         self.title("Riot Login Selector")
-        self.iconbitmap('assets/favicon.ico')
+        self.iconbitmap(ICON_PATH)
 
         window_handle = FindWindow(None, "Riot Client Main")
         window_rect = GetWindowRect(window_handle)
@@ -44,6 +46,10 @@ class App(customtkinter.CTk):
                                                           hover_color="#1f7d69")
         self.button_add_account.grid(row=0, column=1, padx=(10, 20), pady=15)
 
+        self.checkbox = customtkinter.CTkCheckBox(master=self, text="Stay signed in", command=signed_in_checkbox,
+                                                  checkbox_height=25, checkbox_width=25)
+        self.checkbox.grid(row=1, column=1, sticky="ns")
+        self.checkbox.select()
         for x in range(len(accounts)):
             customtkinter.CTkButton(self, text=accounts[x].get('profile'), command=lambda number=x: login(number)
                                     ).grid(column=0, row=x, padx=(20, 10), pady=15)
@@ -61,7 +67,7 @@ class App(customtkinter.CTk):
                                                  ).grid(column=1, row=1, padx=10, pady=10, sticky="nsew")
         edit_profile = customtkinter.CTkButton(window, text="Edit a profile", command=self.edit_account
                                                ).grid(column=0, row=1, padx=10, pady=10, sticky="nsew")
-        with open("accounts.json", "r") as account_file:
+        with open(path, "r") as account_file:
             accounts = json.load(account_file)
         if len(accounts) == 0:
             edit_profile.configure(state="disabled")
@@ -92,6 +98,18 @@ class App(customtkinter.CTk):
                                                                         sticky="nsew")
         customtkinter.CTkButton(master=window, text="Confirm", command=remove_account
                                 ).grid(column=1, row=3, padx=10, pady=10, sticky="nsew")
+
+    def create_error_window(self, error):
+        error_window = customtkinter.CTkToplevel(self)
+        error_window.geometry(
+            f"250x100+{int(window_rect[0] + window_rect_1) + 100}+{window_rect_2 + window_rect[1] + 100}")
+        if error == "auth_failure":
+            error = "Incorrect login credentials."
+        error_label = customtkinter.CTkLabel(error_window, title='Error', text=f"Error: \n {error}")
+        error_label.pack(side="top", expand=True, padx=10, pady=10)
+
+        ok_button = customtkinter.CTkButton(error_window, text="OK", command=error_window.destroy)
+        ok_button.pack(side="top", expand=True, padx=10, pady=10)
 
     def edit_account(self):
         with open("accounts.json", "r") as account_file:
@@ -124,13 +142,13 @@ def add_account():
     profile_name = entry1.get()
     username = entry2.get()
     password = entry3.get()
-    with open("accounts.json", "r") as account_file:
+    with open(path, "r") as account_file:
         accounts = json.load(account_file)
     if accounts == "":
         accounts = []
     profile = {"profile": profile_name, "username": username, "password": password}
     accounts.append(profile)
-    with open("accounts.json", "w") as account_file:
+    with open(path, "w") as account_file:
         json.dump(accounts, account_file)
     window2.withdraw()
     window.withdraw()
@@ -147,19 +165,27 @@ def refresh():
     app.mainloop()
 
 
+def signed_in_checkbox():
+    global stay_logged_in
+    if app.checkbox.get() == 1:
+        stay_logged_in = True
+    elif app.checkbox.get() == 0:
+        stay_logged_in = False
+
+
 def edit_update():
     global profile_name
     profile_name = entry_edit1.get()
     username = entry_edit2.get()
     password = entry_edit3.get()
     profile = {"profile": profile_name, "username": username, "password": password}
-    with open("accounts.json", "r") as account_file:
+    with open(path, "r") as account_file:
         accounts = json.load(account_file)
     for account in accounts:
         if account_to_edit == account['profile']:
             accounts.remove(account)
     accounts.append(profile)
-    with open("accounts.json", "w") as account_file:
+    with open(path, "w") as account_file:
         json.dump(accounts, account_file)
     window3.withdraw()
     window.withdraw()
@@ -167,12 +193,12 @@ def edit_update():
 
 
 def remove_account():
-    with open("accounts.json", "r") as account_file:
+    with open(path, "r") as account_file:
         accounts = json.load(account_file)
     for account in accounts:
         if account['profile'] == account_to_remove:
             accounts.remove(account)
-    with open("accounts.json", "w") as account_file:
+    with open(path, "w") as account_file:
         json.dump(accounts, account_file)
     window.withdraw()
     refresh()
@@ -197,13 +223,13 @@ def login(index):
     lcu_password = lcu_info.remoting_auth_token
     lcu_user = 'riot'
 
-    with open("accounts.json", "r") as account_file:
+    with open(path, "r") as account_file:
         accounts = json.load(account_file)
 
     payload = {
         'username': accounts[index].get('username'),
         'password': accounts[index].get('password'),
-        'persistLogin': False
+        'persistLogin': stay_logged_in
     }
 
     response = requests.put(lcu_endpoint, json=payload, verify=False, auth=(lcu_user, lcu_password))
@@ -220,6 +246,7 @@ def login(index):
             app.protocol('WM_DELETE+_WINDOW', hide_window)
             app.after(2000, app.mainloop())
         else:
+            app.create_error_window(response_content.get('error'))
             print(f"error : {response_content.get('error')}")
     else:
         print(f"error {response.status_code}")
@@ -269,7 +296,6 @@ def main():
     init_icon()
     run_icon()
     wait_for_client()
-    time.sleep(1)
     app = App()
     app.protocol('WM_DELETE+_WINDOW', hide_window)
     app.mainloop()
