@@ -7,7 +7,7 @@ When the Riot login page opens up, a window with different options will pop up.
 
 You can choose to login to one of your profiles or to add, edit or remove a profile.
 
-All the accounts are stored in your /appdata/local directory and the app does not interact with anything else than your riot client and file that stores the profiles.
+All the accounts are stored in your /appdata/local directory and the app does not interact with anything else than your riot client and the file that stores the profiles.
 
 
 
