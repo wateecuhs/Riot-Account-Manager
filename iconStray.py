@@ -1,3 +1,4 @@
+import PIL.Image
 import customtkinter
 import json
 import logging
@@ -7,16 +8,18 @@ import winshell
 import os
 import sys
 import threading
-from PIL import Image
+import PIL
+import base64
 from pystray import Menu, MenuItem, Icon
 from win32gui import FindWindow, GetWindowRect
 from pystray import Menu, MenuItem, Icon
 import winshell
 import win32com.client
+from ico import get_icon
 
+ICON_PATH = get_icon()
+image = PIL.Image.open(ICON_PATH)
 
-image = Image.open("assets/favicon.ico")
-icon_started = False
 
 
 def on_clicked1(item):
@@ -47,12 +50,18 @@ def on_clicked2(item):
 
 def quit_window():
     global app, process
+    print('exiting..')
     icon.stop()
     os._exit(1)
 
 
 def get_paths():
     global path, pathfile, python_path, state1, state2
+
+    appdata_path = os.path.join(os.getenv('APPDATA')[:-8], 'Local', 'Riot Account Manager')
+    if not os.path.exists(appdata_path):
+        os.makedirs(appdata_path)
+
     path = winshell.startup()
     path = os.path.join(path, 'Riot Account Manager.lnk')
     if os.path.exists(path):
@@ -92,6 +101,6 @@ def init_icon():
 
 
 def run_icon():
-    global window_text
     if not icon.is_alive():
         icon.start()
+
