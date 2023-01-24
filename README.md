@@ -17,7 +17,7 @@ You can download the latest release  here:
 
 [Download](https://github.com/wateecuhs/Riot-Account-Selector/releases/latest)
 
-You can either directly download the .exe file or build it yourself using py-to-exe (check the ![customtkinter doc](https://github.com/TomSchimansky/CustomTkinter/wiki/Packaging))
+You can either directly download the .exe file or build it yourself using py-to-exe (check the [customtkinter doc](https://github.com/TomSchimansky/CustomTkinter/wiki/Packaging))
     
 ## Usage examples
 
