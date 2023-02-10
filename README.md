@@ -32,3 +32,7 @@ Connecting:
 Adding the app to startup:
 
 ![App Screenshot](https://media1.giphy.com/media/m0t3I2CRttu6ma4fFV/giphy.gif)
+
+## Issues
+
+If you have any issues contact Waticouz#6828
