@@ -91,7 +91,7 @@ class App(customtkinter.CTk):
                                 ).grid(column=0, row=3, columnspan=2, padx=10, pady=10, sticky="ns")
 
     def remove_account(self):
-        with open("accounts.json", "r") as account_file:
+        with open(path, "r") as account_file:
             accounts = json.load(account_file)
         customtkinter.CTkOptionMenu(master=window, values=[account['profile'] for account in accounts],
                                     command=option_menu_callback1).grid(column=1, row=2, padx=10, pady=10,
@@ -112,7 +112,7 @@ class App(customtkinter.CTk):
         ok_button.pack(side="top", expand=True, padx=10, pady=10)
 
     def edit_account(self):
-        with open("accounts.json", "r") as account_file:
+        with open(path, "r") as account_file:
             accounts = json.load(account_file)
         customtkinter.CTkOptionMenu(master=window, values=[account['profile'] for account in accounts],
                                     command=option_menu_callback2).grid(column=0, row=2, padx=10, pady=10,
