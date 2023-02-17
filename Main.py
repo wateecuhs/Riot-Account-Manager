@@ -39,7 +39,8 @@ class App(customtkinter.CTk):
         window_rect = GetWindowRect(window_handle)
         window_rect_1 = (window_rect[2] - window_rect[0]) * 0.27
         window_rect_2 = (window_rect[3] - window_rect[1]) * 0.05
-        self.geometry(f"340x400+{int(window_rect[0] + window_rect_1)}+{window_rect_2 + window_rect[1]}")
+        added_size = 70 * (len(accounts) - 7) if len(accounts) > 7 else 0
+        self.geometry(f"340x{400 + added_size}+{int(window_rect[0] + window_rect_1)}+{window_rect_2 + window_rect[1]}")
 
         self.button_add_account = customtkinter.CTkButton(master=self, text="Manage profiles",
                                                           command=self.create_window, fg_color="#125748",
