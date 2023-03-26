@@ -28,7 +28,7 @@ class App(customtkinter.CTk):
         super().__init__()
         self.grid_columnconfigure((0, 1), weight=0)
         if len(accounts) > 0:
-            self.grid_rowconfigure((list(range(len(accounts)))), weight=0)
+            self.grid_rowconfigure((0, 1), weight=0)
         else:
             self.grid_rowconfigure((0, 1), weight=0)
         self.overrideredirect(False)
@@ -39,21 +39,22 @@ class App(customtkinter.CTk):
         window_rect = GetWindowRect(window_handle)
         window_rect_1 = (window_rect[2] - window_rect[0]) * 0.27
         window_rect_2 = (window_rect[3] - window_rect[1]) * 0.05
-        added_size = 70 * (len(accounts) - 7) if len(accounts) > 7 else 0
-        self.geometry(f"340x{400 + added_size}+{int(window_rect[0] + window_rect_1)}+{window_rect_2 + window_rect[1]}")
+        added_size = 70 * (len(accounts) - 7) if 10 > len(accounts) > 7 else 0 if len(accounts) < 7 else 70 * 3
+        added_size2 = 170 * int(len(accounts)/10)
+        self.geometry(f"{340 + added_size2}x{400 + added_size}+{int(window_rect[0] + window_rect_1)}+{window_rect_2 + window_rect[1]}")
 
         self.button_add_account = customtkinter.CTkButton(master=self, text="Manage profiles",
                                                           command=self.create_window, fg_color="#125748",
                                                           hover_color="#1f7d69")
-        self.button_add_account.grid(row=0, column=1, padx=(10, 20), pady=15)
+        self.button_add_account.grid(row=0, column=1 if len(accounts) < 10 else (int(len(accounts)/10)+1), padx=(10, 20), pady=15)
 
         self.checkbox = customtkinter.CTkCheckBox(master=self, text="Stay signed in", command=signed_in_checkbox,
                                                   checkbox_height=25, checkbox_width=25)
-        self.checkbox.grid(row=1, column=1, sticky="ns")
+        self.checkbox.grid(row=1, column=1 if len(accounts) < 10 else (int(len(accounts)/10)+1), sticky="ns")
         self.checkbox.select()
         for x in range(len(accounts)):
             customtkinter.CTkButton(self, text=accounts[x].get('profile'), command=lambda number=x: login(number)
-                                    ).grid(column=0, row=x, padx=(20, 10), pady=15)
+                                    ).grid(column=0 if x < 10 else int(x/10), row=int(repr(x)[-1]), padx=(20, 10), pady=15)
 
     def create_window(self):
         global window
@@ -92,8 +93,10 @@ class App(customtkinter.CTk):
                                 ).grid(column=0, row=3, columnspan=2, padx=10, pady=10, sticky="ns")
 
     def remove_account(self):
+        global account_to_remove
         with open(path, "r") as account_file:
             accounts = json.load(account_file)
+        account_to_remove = accounts[0]['profile']
         customtkinter.CTkOptionMenu(master=window, values=[account['profile'] for account in accounts],
                                     command=option_menu_callback1).grid(column=1, row=2, padx=10, pady=10,
                                                                         sticky="nsew")
@@ -113,8 +116,10 @@ class App(customtkinter.CTk):
         ok_button.pack(side="top", expand=True, padx=10, pady=10)
 
     def edit_account(self):
+        global account_to_edit
         with open(path, "r") as account_file:
             accounts = json.load(account_file)
+        account_to_edit = accounts[0]['profile']
         customtkinter.CTkOptionMenu(master=window, values=[account['profile'] for account in accounts],
                                     command=option_menu_callback2).grid(column=0, row=2, padx=10, pady=10,
                                                                         sticky="nsew")
@@ -175,7 +180,6 @@ def signed_in_checkbox():
 
 
 def edit_update():
-    global profile_name
     profile_name = entry_edit1.get()
     username = entry_edit2.get()
     password = entry_edit3.get()
@@ -207,12 +211,16 @@ def remove_account():
 
 def option_menu_callback1(choice):
     global account_to_remove
+    print("optionmenu dropdown clicked:", choice)
     account_to_remove = choice
+    print(account_to_remove)
 
 
 def option_menu_callback2(choice):
     global account_to_edit
+    print("optionmenu dropdown clicked:", choice)
     account_to_edit = choice
+    print(account_to_edit)
 
 
 def login(index):
@@ -240,7 +248,7 @@ def login(index):
         if response_content.get('error') == "":
             app.withdraw()
             app.quit()
-            print(1)
+            time.sleep(3)
             wait_for_client()
             print(2)
             app = App()
