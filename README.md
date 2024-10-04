@@ -1,3 +1,8 @@
+# DEPRECATED
+
+This program does not work anymore after Riot's change from usernames to Riot IDs and the addition of captchas when trying to login too fast/too many times.
+The code also sucks ass, as it was one of my first attempts at programming.
+I will never update this most likely, but im keeping it up as it was a cool project that my friends and I used daily.
 
 # Riot Account Manager
 
@@ -8,7 +13,6 @@ When the Riot login page opens up, a window with different options will pop up.
 You can choose to login to one of your profiles or to add, edit or remove a profile.
 
 All the accounts are stored in your /appdata/local directory and the app does not interact with anything else than your riot client and the file that stores the profiles.
-
 
 
 ## Download
@@ -33,6 +37,6 @@ Adding the app to startup:
 
 ![App Screenshot](https://media1.giphy.com/media/m0t3I2CRttu6ma4fFV/giphy.gif)
 
-## Issues
+## Contact
 
-If you have any issues contact Waticouz#6828
+wateecuhs on discord
